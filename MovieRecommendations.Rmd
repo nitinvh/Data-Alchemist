@@ -1,0 +1,330 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+### 1. Load the Dataset
+```{r}
+# Load each file with the correct path
+tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\tag.csv")
+links <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\link.csv")
+genome_scores <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_scores.csv")
+genome_tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_tags.csv")
+ratings <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\rating.csv")
+movies <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\movie.csv")
+
+
+```
+
+### 2. Data Types and Structure Check
+
+```{r}
+# Quick structure check
+str(tags)
+
+```
+
+```{r}
+str(links)
+
+```
+
+```{r}
+str(genome_scores)
+
+```
+
+```{r}
+str(genome_tags)
+
+```
+
+```{r}
+str(ratings)
+
+```
+
+```{r}
+str(movies)
+```
+### 3. Missing Values
+```{r}
+# Check for NA values
+sapply(list(tags, links, genome_scores, genome_tags, ratings, movies), function(df) sum(is.na(df)))
+
+```
+### 4. Missing values column wise
+```{r}
+# Check for NA values by column in each dataset
+lapply(list(tags = tags, links = links, genome_scores = genome_scores, genome_tags = genome_tags, ratings = ratings, movies = movies), 
+       function(df) sapply(df, function(col) sum(is.na(col))))
+
+```
+### 5. Checking and Dropping NA values in links dataset
+```{r}
+# Check row count before dropping NA values in tmdbId
+before_count <- nrow(links)
+cat("Row count before dropping NA values in tmdbId:", before_count, "\n")
+
+# Drop rows where tmdbId is NA
+links <- links[!is.na(links$tmdbId), ]
+
+# Check row count after dropping NA values in tmdbId
+after_count <- nrow(links)
+cat("Row count after dropping NA values in tmdbId:", after_count, "\n")
+
+```
+### 6. Checking blank values
+```{r}
+# Function to check for blank values in each column of a data frame
+check_blank_values <- function(df) {
+  sapply(df, function(col) sum(col == "", na.rm = TRUE))
+}
+
+# Check for blank values in each dataset
+cat("Blank values in 'tags':\n")
+print(check_blank_values(tags))
+
+cat("\nBlank values in 'links':\n")
+print(check_blank_values(links))
+
+cat("\nBlank values in 'genome_scores':\n")
+print(check_blank_values(genome_scores))
+
+cat("\nBlank values in 'genome_tags':\n")
+print(check_blank_values(genome_tags))
+
+cat("\nBlank values in 'ratings':\n")
+print(check_blank_values(ratings))
+
+cat("\nBlank values in 'movies':\n")
+print(check_blank_values(movies))
+
+```
+### 7.Standardizing Timestamps
+```{r}
+tags$timestamp <- as.Date(tags$timestamp)
+ratings$timestamp <- as.Date(ratings$timestamp)
+
+```
+
+### 8. Printing Dimensions of datasets
+```{r}
+# Calculate dimensions of each dataset
+dim_tags <- dim(tags)
+dim_links <- dim(links)
+dim_genome_scores <- dim(genome_scores)
+dim_genome_tags <- dim(genome_tags)
+dim_ratings <- dim(ratings)
+dim_movies <- dim(movies)
+
+# Print dimensions
+print(dim_tags)
+print(dim_links)
+print(dim_genome_scores)
+print(dim_genome_tags)
+print(dim_ratings)
+print(dim_movies)
+
+```
+### 9. Checking and Dropping NA values in tags dataset
+```{r}
+# Check row count before dropping NA values in tag
+before_count <- nrow(tags)
+cat("Row count before dropping NA values in tag:", before_count, "\n")
+
+# Drop rows where tag is NA
+tags <- tags[!is.na(tags$tag), ]
+
+# Check row count after dropping NA values in tmdbId
+after_count <- nrow(tags)
+cat("Row count after dropping NA values in tag:", after_count, "\n")
+
+```
+### 10. Checking the dimensions of tags dataset
+```{r}
+dim_tags <- dim(tags)
+print(dim_tags)
+```
+
+### 11. Checkings outliers in ratings
+```{r}
+# Check for out-of-range ratings and count them
+out_of_range_ratings <- subset(ratings, rating < 0 | rating > 5)
+out_of_range_count <- nrow(out_of_range_ratings)
+
+# Display the count of out-of-range ratings
+print(paste("Number of ratings out of range (0-5):", out_of_range_count))
+
+
+
+# Now filter the ratings within the range 0 to 5
+ratings <- subset(ratings, rating >= 0 & rating <= 5)
+
+```
+### 12. Checking duplicates in datasets
+```{r}
+library(data.table)
+
+# Convert each dataset to data.table format
+tags <- as.data.table(tags)
+links <- as.data.table(links)
+genome_scores <- as.data.table(genome_scores)
+genome_tags <- as.data.table(genome_tags)
+ratings <- as.data.table(ratings)
+movies <- as.data.table(movies)
+
+# Count duplicates using .N
+duplicates_tags <- nrow(tags) - uniqueN(tags)
+duplicates_links <- nrow(links) - uniqueN(links)
+duplicates_genome_scores <- nrow(genome_scores) - uniqueN(genome_scores)
+duplicates_genome_tags <- nrow(genome_tags) - uniqueN(genome_tags)
+duplicates_ratings <- nrow(ratings) - uniqueN(ratings)
+duplicates_movies <- nrow(movies) - uniqueN(movies)
+
+# Print duplicate counts
+cat("Duplicate rows in tags:", duplicates_tags, "\n")
+cat("Duplicate rows in links:", duplicates_links, "\n")
+cat("Duplicate rows in genome_scores:", duplicates_genome_scores, "\n")
+cat("Duplicate rows in genome_tags:", duplicates_genome_tags, "\n")
+cat("Duplicate rows in ratings:", duplicates_ratings, "\n")
+cat("Duplicate rows in movies:", duplicates_movies, "\n")
+
+```
+
+```{r}
+# Check the range of the relevance scores
+range_relevance <- range(genome_scores$relevance)
+print(paste("Minimum relevance:", range_relevance[1]))
+print(paste("Maximum relevance:", range_relevance[2]))
+
+# If all values are within 0 and 1, no need to normalize
+if (range_relevance[1] >= 0 && range_relevance[2] <= 1) {
+  print("All values are within the range 0 to 1; no normalization is needed.")
+} else {
+  library(scales)
+  genome_scores$relevance <- rescale(genome_scores$relevance, to = c(0, 1))
+}
+
+# Optionally, format relevance scores for consistent readability
+genome_scores$relevance <- format(genome_scores$relevance, scientific = FALSE)
+print("Genome Scores DataFrame with formatted relevance values:")
+print(head(genome_scores))
+
+
+```
+```{r}
+# Save each cleaned DataFrame to CSV files in the specified directory
+write.csv(tags, "C:/Users/karth/Downloads/grp1_cleaned_tags.csv", row.names = FALSE)
+write.csv(links, "C:/Users/karth/Downloads/grp1_cleaned_links.csv", row.names = FALSE)
+write.csv(genome_scores, "C:/Users/karth/Downloads/grp1_cleaned_genome_scores.csv", row.names = FALSE)
+write.csv(genome_tags, "C:/Users/karth/Downloads/grp1_cleaned_genome_tags.csv", row.names = FALSE)
+write.csv(ratings, "C:/Users/karth/Downloads/grp1_cleaned_ratings.csv", row.names = FALSE)
+write.csv(movies, "C:/Users/karth/Downloads/grp1_cleaned_movies.csv", row.names = FALSE)
+
+```
+
+```{r}
+# Load datasets
+tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\tag.csv")
+links <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\link.csv")
+genome_scores <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_scores.csv")
+genome_tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_tags.csv")
+ratings <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\rating.csv")
+movies <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\movie.csv")
+
+# Print dimensions before cleaning
+cat("Dimensions before cleaning:\n")
+cat("tags:", dim(tags), "\n")
+cat("links:", dim(links), "\n")
+cat("genome_scores:", dim(genome_scores), "\n")
+cat("genome_tags:", dim(genome_tags), "\n")
+cat("ratings:", dim(ratings), "\n")
+cat("movies:", dim(movies), "\n")
+
+
+
+
+
+```
+
+```{r}
+# Reload cleaned datasets to capture post-cleaning dimensions
+c
+
+# Print dimensions after cleaning
+cat("\nDimensions after cleaning:\n")
+cat("tags:", dim(tags), "\n")
+cat("links:", dim(links), "\n")
+cat("genome_scores:", dim(genome_scores), "\n")
+cat("genome_tags:", dim(genome_tags), "\n")
+cat("ratings:", dim(ratings), "\n")
+cat("movies:", dim(movies), "\n")
+```
+
+```{r}
+library(dplyr)
+
+# Load data
+ratings <- read.csv("C:/Users/karth/Downloads/grp1_cleaned_ratings.csv")
+movies <- read.csv("C:/Users/karth/Downloads/grp1_cleaned_movies.csv")  # Replace with your actual path
+genome_scores <- read.csv("C:/Users/karth/Downloads/grp1_cleaned_genome_scores.csv")  # Replace with your actual path
+
+# Summarize genome_scores before joining
+genome_scores_summary <- genome_scores %>%
+  group_by(movieId) %>%
+  summarize(average_relevance = mean(relevance))
+
+# Join movies with ratings
+movie_ratings <- left_join(movies, ratings, by = "movieId")
+
+# Join the result with summarized genome_scores
+combined_data <- left_join(movie_ratings, genome_scores_summary, by = "movieId")
+
+# Check the first few rows to confirm the join
+head(combined_data)
+
+
+```
+
+```{r}
+# Write the combined data to a CSV file
+write.csv(combined_data, "C:/Users/karth/Downloads/group1_combined_data.csv", row.names = FALSE)
+```
+
+```{r}
+# Load the combined data if not already loaded
+combined_data <- read.csv("C:/Users/karth/Downloads/group1_combined_data.csv")
+
+# Get the dimensions of the dataset
+dimensions <- dim(combined_data)
+print(dimensions)
+```
+
+```{r}
+# Get summary statistics of the dataset
+statistics <- summary(combined_data)
+print(statistics)
+```
+
+```{r}
+# Load the combined data if not already loaded
+combined_data <- read.csv("C:/Users/karth/Downloads/group1_combined_data.csv")
+
+# Count NA values in each column
+na_counts <- sapply(combined_data, function(x) sum(is.na(x)))
+
+# Print the counts of NA values per column
+print(na_counts)
+
+```
+### Till here we combined three cleaned datasets (movies , ratings and genome_scores csv files)
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
