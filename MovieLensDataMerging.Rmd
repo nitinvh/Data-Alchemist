@@ -9,12 +9,12 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 ### 1. Load the Dataset
 ```{r}
 # Load each file with the correct path
-tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\tag.csv")
-links <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\link.csv")
-genome_scores <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_scores.csv")
-genome_tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_tags.csv")
-ratings <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\rating.csv")
-movies <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\movie.csv")
+tags <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/tag.csv")
+links <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/link.csv")
+genome_scores <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/genome_scores.csv")
+genome_tags <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/genome_tags.csv")
+ratings <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/rating.csv")
+movies <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/movie.csv")
 
 
 ```
@@ -218,23 +218,23 @@ print(head(genome_scores))
 ```
 ```{r}
 # Save each cleaned DataFrame to CSV files in the specified directory
-write.csv(tags, "C:/Users/karth/Downloads/grp1_cleaned_tags.csv", row.names = FALSE)
-write.csv(links, "C:/Users/karth/Downloads/grp1_cleaned_links.csv", row.names = FALSE)
-write.csv(genome_scores, "C:/Users/karth/Downloads/grp1_cleaned_genome_scores.csv", row.names = FALSE)
-write.csv(genome_tags, "C:/Users/karth/Downloads/grp1_cleaned_genome_tags.csv", row.names = FALSE)
-write.csv(ratings, "C:/Users/karth/Downloads/grp1_cleaned_ratings.csv", row.names = FALSE)
-write.csv(movies, "C:/Users/karth/Downloads/grp1_cleaned_movies.csv", row.names = FALSE)
+write.csv(tags, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_tags.csv", row.names = FALSE)
+write.csv(links, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_links.csv", row.names = FALSE)
+write.csv(genome_scores, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_genome_scores.csv", row.names = FALSE)
+write.csv(genome_tags, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_genome_tags.csv", row.names = FALSE)
+write.csv(ratings, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_ratings.csv", row.names = FALSE)
+write.csv(movies, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_movies.csv", row.names = FALSE)
 
 ```
 
 ```{r}
 # Load datasets
-tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\tag.csv")
-links <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\link.csv")
-genome_scores <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_scores.csv")
-genome_tags <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\genome_tags.csv")
-ratings <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\rating.csv")
-movies <- read.csv("C:\\Users\\karth\\Downloads\\movie_lens\\movie.csv")
+tags <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/tag.csv")
+links <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/link.csv")
+genome_scores <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/genome_scores.csv")
+genome_tags <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/genome_tags.csv")
+ratings <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/rating.csv")
+movies <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/movie.csv")
 
 # Print dimensions before cleaning
 cat("Dimensions before cleaning:\n")
@@ -269,9 +269,9 @@ cat("movies:", dim(movies), "\n")
 library(dplyr)
 
 # Load data
-ratings <- read.csv("C:/Users/karth/Downloads/grp1_cleaned_ratings.csv")
-movies <- read.csv("C:/Users/karth/Downloads/grp1_cleaned_movies.csv")  # Replace with your actual path
-genome_scores <- read.csv("C:/Users/karth/Downloads/grp1_cleaned_genome_scores.csv")  # Replace with your actual path
+ratings <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_ratings.csv")
+movies <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_movies.csv")  # Replace with your actual path
+genome_scores <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/grp1_cleaned_genome_scores.csv")  # Replace with your actual path
 
 # Summarize genome_scores before joining
 genome_scores_summary <- genome_scores %>%
@@ -292,12 +292,12 @@ head(combined_data)
 
 ```{r}
 # Write the combined data to a CSV file
-write.csv(combined_data, "C:/Users/karth/Downloads/group1_combined_data.csv", row.names = FALSE)
+write.csv(combined_data, "/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/group1_combined_data.csv", row.names = FALSE)
 ```
 
 ```{r}
 # Load the combined data if not already loaded
-combined_data <- read.csv("C:/Users/karth/Downloads/group1_combined_data.csv")
+combined_data <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/group1_combined_data.csv")
 
 # Get the dimensions of the dataset
 dimensions <- dim(combined_data)
@@ -312,7 +312,7 @@ print(statistics)
 
 ```{r}
 # Load the combined data if not already loaded
-combined_data <- read.csv("C:/Users/karth/Downloads/group1_combined_data.csv")
+combined_data <- read.csv("/Users/nikki/Documents/DataMining_Group1_Project/Data-Alchemist/datasets/group1_combined_data.csv")
 
 # Count NA values in each column
 na_counts <- sapply(combined_data, function(x) sum(is.na(x)))
