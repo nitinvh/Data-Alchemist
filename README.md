@@ -91,5 +91,3 @@ The Data-Alchemist project by **Group 1** focuses on creating a movie recommenda
 - Open a pull request for review.
 
 ---
-
-Feel free to let me know if you'd like any additional customization or specific details added to your README!
