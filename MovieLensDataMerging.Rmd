@@ -323,6 +323,185 @@ print(na_counts)
 ```
 ### Till here we combined three cleaned datasets (movies , ratings and genome_scores csv files)
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+---
+title: "R Notebook"
+output: html_notebook
+---
+### this additional code for finalizing dataset after sampling
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+# Load dataset
+# Replace 'movies.csv' with the path to your dataset
+data <- read.csv("C:/Users/karth/OneDrive/Documents/Group_1_Data_mining/Data-Alchemist/datasets/group1_combined_data.csv", stringsAsFactors = FALSE)
+
+# 1. Check the structure of the dataset
+cat("Structure of the dataset:\n")
+str(data)
+
+# 2. Get the dimensions of the dataset (rows and columns)
+cat("\nDimensions of the dataset (rows, columns):\n")
+print(dim(data))
+
+# 3. Count of NA values in each column
+cat("\nNumber of NA values in each column:\n")
+na_counts <- colSums(is.na(data))
+print(na_counts)
+
+# 4. Count of blank values (empty strings) in each column
+cat("\nNumber of blank ('') values in each column:\n")
+blank_counts <- sapply(data, function(x) sum(x == "", na.rm = TRUE))
+print(blank_counts)
+
+# 5. Summary of missing and blank values combined
+cat("\nSummary of NA and blank values in each column:\n")
+combined_counts <- data.frame(
+  Column = names(data),
+  NA_Count = na_counts,
+  Blank_Count = blank_counts,
+  Total_Missing = na_counts + blank_counts
+)
+print(combined_counts)
+
+
+```
+
+```{r}
+# Install dplyr package if not already installed
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  install.packages("dplyr")
+}
+
+# Load the dplyr package
+library(dplyr)
+
+# Remove rows where userId, rating, timestamp, or average_relevance have NA values
+cleaned_data <- data %>%
+  filter(!is.na(userId) & !is.na(rating) & !is.na(timestamp) & !is.na(average_relevance))
+
+# Summary of cleaned dataset
+cat("Dimensions of the cleaned dataset (rows, columns):\n")
+print(dim(cleaned_data))
+
+cat("\nNumber of NA values in each column after cleaning:\n")
+print(colSums(is.na(cleaned_data)))
+
+# Save the cleaned dataset
+#write.csv(cleaned_data, "cleaned_movies.csv", row.names = FALSE)
+
+# Print a preview of the cleaned dataset
+cat("\nPreview of the cleaned dataset:\n")
+print(head(cleaned_data))
+
+
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Assuming 'cleaned_data' is loaded from the previous steps
+# Let's say we're stratifying by a categorical column 'userId' (or choose another column as per your data structure)
+
+# Check if there are enough data points per user for stratified sampling
+cat("Number of observations per user:\n")
+print(table(cleaned_data$userId))
+
+# Performing stratified sampling: Sample 10% of each category
+# Ensure that each category has enough data; otherwise, reduce the sample size or adjust parameters
+set.seed(123)  # for reproducibility
+stratified_sample <- cleaned_data %>%
+  group_by(userId) %>%  # Replace 'userId' with the relevant column name for stratification
+  sample_frac(0.1, replace = FALSE)  # Adjust the fraction as needed; set 'replace = TRUE' if necessary
+
+# Print the dimensions of the sampled dataset
+cat("Dimensions of the sampled dataset (rows, columns):\n")
+print(dim(stratified_sample))
+
+# Check for null values in the sampled dataset
+cat("\nNumber of NA values in each column after sampling:\n")
+print(colSums(is.na(stratified_sample)))
+
+# Write the sampled data to a CSV file
+write.csv(stratified_sample, "stratified_sample.csv", row.names = FALSE)
+
+# Print a preview of the sampled dataset
+cat("\nPreview of the sampled dataset:\n")
+print(head(stratified_sample))
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Load the stratified sample from the CSV file
+data <- read.csv("stratified_sample.csv", stringsAsFactors = FALSE)
+
+# Ensure genres are treated as character data
+data$genres <- as.character(data$genres)
+
+# Separate genres into multiple rows and then apply one-hot encoding
+data_one_hot <- data %>%
+  # Separate genres based on the pipe delimiter into different rows
+  separate_rows(genres, sep = "\\|") %>%
+  # Apply one-hot encoding: create new columns for each genre, marked as 1
+  mutate(value = 1) %>%
+  pivot_wider(
+    id_cols = setdiff(names(data), "genres"), # Keeps all other columns stable without duplication
+    names_from = genres, 
+    values_from = value, 
+    values_fill = list(value = 0)
+  )
+
+# Print the structure and a preview of the dataset
+print(str(data_one_hot))
+print(head(data_one_hot))
+
+# Save the one-hot encoded data to a CSV file for further use
+write.csv(data_one_hot, "one_hot_encoded_data.csv", row.names = FALSE)
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+# Load the one-hot encoded data from the CSV file
+data <- read.csv("one_hot_encoded_data.csv", stringsAsFactors = FALSE)
+
+# Write the data to a new file
+write.csv(data, "dm_group1_sampled_data.csv", row.names = FALSE)
+
+# Print the dimensions of the dataset
+cat("Dimensions of the dataset:\n")
+print(dim(data))
+
+# Print the structure of the dataset
+cat("\nStructure of the dataset:\n")
+str(data)
+
+# Check for null values in each column
+cat("\nNull values in each column:\n")
+null_values <- sapply(data, function(x) sum(is.na(x)))
+print(null_values)
+
+# Print summary statistics for the dataset
+cat("\nSummary statistics for the dataset:\n")
+summary_data <- summary(data)
+print(summary_data)
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
 
 When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
