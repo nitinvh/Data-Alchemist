@@ -204,7 +204,7 @@ similarity_matrix <- proxy::simil(feature_matrix, method = "cosine")
 # Convert to a data frame for easier manipulation
 similarity_df <- as.data.frame(as.matrix(similarity_matrix))
 #rownames(similarity_df) <- content_features$title
-#colnames(similarity_df) <- content_features$title 
+#colnames(similarity_df) <- content_features$title  
  
 ```
 ```{r}
