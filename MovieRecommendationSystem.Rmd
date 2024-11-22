@@ -17,7 +17,7 @@ library(tidyr)
 ```{r}
 dataset <- read.csv("datasets/stratified_sample.csv")
 # Limit dataset to 10,000 rows
-dataset <- head(dataset, 10000)
+#dataset <- head(dataset, 10000)
 
 
 ```
@@ -32,6 +32,11 @@ summary(dataset)
 
 # Check for missing values
 colSums(is.na(dataset))
+
+# Count duplicate rows
+num_duplicates <- sum(duplicated(dataset))
+print(paste("Number of duplicate rows:", num_duplicates))
+
 
 ```
 
@@ -52,6 +57,7 @@ ggplot(dataset, aes(x = rating)) +
 ```
 
 #Explore Genres: Split the genres column into multiple rows and analyze
+
 ```{r}
 genres_split <- dataset %>%
   separate_rows(genres, sep = "\\|")
@@ -82,6 +88,7 @@ ggplot(user_activity, aes(x = ratings_count)) +
 ```
 
 #Calculate average ratings for each movie and visualize the distribution
+
 ```{r}
 movie_avg_ratings <- dataset %>%
   group_by(movieId, title) %>%
@@ -94,7 +101,9 @@ ggplot(movie_avg_ratings, aes(x = avg_rating)) +
   labs(title = "Average Ratings Distribution", x = "Average Rating", y = "Count")
 
 ```
+
 #Top 10 highest-rated movies with sufficient reviews
+
 ```{r}
 top_movies <- movie_avg_ratings %>%
   filter(rating_count >= 10) %>%
@@ -104,6 +113,7 @@ top_movies <- movie_avg_ratings %>%
 print(top_movies)
 
 ```
+
 #User Preferences by Genre
 
 ```{r}
@@ -115,7 +125,9 @@ user_genre_pref <- genres_split %>%
 head(user_genre_pref)
 
 ```
+
 #Average Rating per Genre
+
 ```{r}
 avg_rating_genre <- genres_split %>%
   group_by(genres) %>%
@@ -129,6 +141,7 @@ ggplot(avg_rating_genre, aes(x = reorder(genres, -avg_rating), y = avg_rating)) 
 ```
 
 #Correlation Between Ratings and Relevance
+
 ```{r}
 set.seed(123)
 sampled_data <- dataset[sample(1:nrow(dataset), 10000), ]
@@ -140,14 +153,7 @@ ggplot(sampled_data, aes(x = average_relevance, y = rating)) +
 ```
 
 #Genre Encoding
-```{r}
-genres_binary <- genres_split %>%
-  mutate(value = 1) %>%
-  spread(genres, value, fill = 0)
 
-head(genres_binary)
-
-```
 ```{r}
 
 # One-hot encode genres
@@ -190,10 +196,39 @@ content_features <- content_features %>%
 
 ```
 
+
 ```{r}
 content_features
+```
+
+
+```{r}
+# Check for duplicate rowtitles
+duplicates_rowtitles <- content_features$title.x[duplicated(content_features$title.x)]
+print("Duplicate RowTitles:")
+print(duplicates_rowtitles)
 
 ```
+
+```{r}
+# Check for duplicate coltitles
+duplicates_coltitles <- content_features$title.y[duplicated(content_features$title.y)]
+print("Duplicate ColTitles:")
+print(duplicates_coltitles)
+
+```
+
+```{r}
+# Remove duplicate titles
+content_features <- content_features[!duplicated(content_features$title.x), ]
+content_features <- content_features[!duplicated(content_features$title.y), ]
+```
+
+```{r}
+length(content_features$title.x)
+length(content_features$title.y)
+```
+
 
 ```{r}
 library(proxy)  # For cosine similarity
@@ -210,15 +245,17 @@ similarity_df <- as.data.frame(as.matrix(similarity_matrix))
 #colnames(similarity_df) <- content_features$title 
  
 ```
+
+
 ```{r}
 similarity_df
-
 ```
 
 ```{r}
 anyDuplicated(rownames(similarity_df))
 anyDuplicated(colnames(similarity_df))
 ```
+
 ```{r}
 str(similarity_df)
 ```
@@ -226,11 +263,7 @@ str(similarity_df)
 ```{r}
 duplicated(rownames(similarity_df))
 ```
-```{r}
-similarity_df
 
-
-```
 
 ```{r}
 class(similarity_matrix)  # Should return "dist"
@@ -238,17 +271,17 @@ attributes(similarity_matrix)  # Check available attributes
 
 all(content_features$title.y == content_features$title.x)
 
-
-
 ```
+
+
 ```{r}
 attr(similarity_matrix, "Labels") <- content_features$title.x
 similarity_matrix <- as.matrix(similarity_matrix)
 rownames(similarity_matrix) <- content_features$title.x
 colnames(similarity_matrix) <- content_features$title.x
-length(content_features$title.x) == 3290  # This should return TRUE
-
-
+#length(content_features$title.x) == 3290  # This should return TRUE
+length(content_features$title.x)
+length(content_features$title.y)
 ```
 
 
@@ -256,6 +289,7 @@ length(content_features$title.x) == 3290  # This should return TRUE
 rownames(similarity_df) <- content_features$title.x
 colnames(similarity_df) <- content_features$title.y
 ```
+
 
 ```{r}
 recommend_movies <- function(movie_name, similarity_df, top_n = 5) {
@@ -276,7 +310,7 @@ recommend_movies <- function(movie_name, similarity_df, top_n = 5) {
   return(similar_movies)
 }
 
-recommendations <- recommend_movies("Jumanji (1995)", similarity_df, top_n = 2)
+recommendations <- recommend_movies("Jumanji (1995)", similarity_df, top_n = 5)
 print(recommendations)
 ```
 
