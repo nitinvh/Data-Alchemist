@@ -17,7 +17,6 @@ library(tidyr)
 ```{r}
 dataset <- read.csv("datasets/stratified_sample.csv")
 # Limit dataset to 10,000 rows
-#dataset <- head(dataset, 10000)
 
 
 ```
