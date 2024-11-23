@@ -270,7 +270,7 @@ class(similarity_matrix)  # Should return "dist"
 attributes(similarity_matrix)  # Check available attributes
 
 all(content_features$title.y == content_features$title.x)
-
+# test
 ```
 
 
