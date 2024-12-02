@@ -1,0 +1,181 @@
+---
+title: "collab filter Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+
+
+```{r}
+# Importing necessary libraries
+library(dplyr)  # For data manipulation
+library(tidyr)  # For data reshaping and transformation
+
+#  Load and preprocess the main dataset
+dataset <- read.csv("C://Users//gauth//Downloads//stratified_sampled_data.csv")  # Stratified sampled data
+
+# Sampling a subset 
+set.seed(123)  # Setting a seed for reproducibility
+processed_dataset <- dataset %>%
+  sample_n(15000) %>%  
+  mutate(
+    genres = strsplit(as.character(genres), "\\|")  # Splitting genres for one-hot encoding
+  ) %>%
+  unnest(genres) %>%
+  pivot_wider(names_from = genres, values_from = genres, values_fill = 0, values_fn = ~1) %>%
+  replace(is.na(.), 0)  # Handling missing values effectively
+
+# Normalize numerical columns to create a feature-rich space
+processed_dataset <- processed_dataset %>%
+  mutate(
+    scaled_rating = scale(rating, center = TRUE, scale = TRUE),
+    scaled_relevance = scale(average_relevance, center = TRUE, scale = TRUE)
+  )
+
+# Preparing a matrix for recommendation logic
+feature_matrix <- processed_dataset %>%
+  select(-movieId, -title) %>%  # Excluding all the non-feature columns
+  as.matrix()
+
+# Creating a recommendation logic with cosine similarity
+recommend_logic <- function(user_movies, top_n = 3) {
+  # Identifying indices of input movies
+  matched_indices <- which(processed_dataset$title %in% user_movies)
+  
+  
+  if (length(matched_indices) == 0) {
+    return(sample(processed_dataset$title, top_n))  # Fallback 
+  }
+  
+  # Calculating similarity dynamically to avoid excessive memory usage
+  user_features <- feature_matrix[matched_indices, , drop = FALSE]
+  similarity_scores <- rowMeans(feature_matrix %*% t(user_features))
+  
+  # Filtering out movies already in the user's watched list
+  similarity_scores[matched_indices] <- -Inf
+  
+  # Sorting and selecting the top recommendations
+  top_indices <- order(similarity_scores, decreasing = TRUE)[1:top_n]
+  return(processed_dataset$title[top_indices])
+}
+
+# Process the user input data
+user_data <- read.csv("C://Users//gauth//Downloads/x_data.csv", header = FALSE, col.names = "UserInput")  # Loading user data
+parsed_user_data <- strsplit(gsub("[\\[\\]'\"]", "", user_data$UserInput), ",\\s*")  # Cleaning and parsing movie titles
+
+# Generate recommendations for all users
+user_recommendations <- lapply(parsed_user_data, function(user_movies) {
+  recommend_logic(user_movies, top_n = 3)  # Applying recommendation logic
+})
+
+#Format the recommendations for output
+formatted_recommendations <- data.frame(
+  Recommendations = sapply(user_recommendations, function(recs) {
+    paste(recs, collapse = "; ")  # Joining recommendations into a single string
+  }),
+  stringsAsFactors = FALSE
+)
+
+#  Save recommendations to a file
+write.csv(formatted_recommendations, "final_recommendations.csv", row.names = FALSE, quote = TRUE)
+
+# Final output for confirmation
+cat("Recommendations successfully generated and saved to 'final_recommendations.csv'.")
+print(head(formatted_recommendations))  # Displaying the top recommendations
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

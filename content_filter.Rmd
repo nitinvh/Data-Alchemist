@@ -1,0 +1,324 @@
+---
+title: "Content Filter Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+
+```{r}
+# Load necessary libraries
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("tidyr", quietly = TRUE)) install.packages("tidyr")
+library(dplyr)
+library(tidyr)
+
+# Step 1: Load and Sample Data
+stratified_sample <- read.csv("C://Users//gauth//Downloads/stratified_sampled_data.csv")
+
+# Sampling the data
+set.seed(123)
+stratified_sample <- stratified_sample %>% sample_n(10000)
+
+# Step 2: Cleaning Titles
+clean_titles <- function(title) {
+  title <- tolower(title)
+  title <- gsub("[^a-z0-9 ]", "", title)  # Remove special characters
+  title <- trimws(title)  # Trim leading/trailing whitespace
+  return(title)
+}
+
+stratified_sample$title <- sapply(stratified_sample$title, clean_titles)
+
+# Step 3: Process x_data and y_data
+x_data <- read.csv("C://Users//gauth//Downloads/x_data.csv", header = FALSE, col.names = "Watched")
+y_data <- read.csv("C://Users//gauth//Downloads/y_data.csv", header = FALSE, col.names = "Expected")
+
+x_data_list <- strsplit(gsub("[\\[\\]'\"]", "", x_data$Watched), ",\\s*")
+x_data_list <- lapply(x_data_list, clean_titles)  # Clean titles in x_data
+
+y_data_list <- strsplit(gsub("[\\[\\]'\"]", "", y_data$Expected), ",\\s*")
+y_data_list <- lapply(y_data_list, clean_titles)  # Clean titles in y_data
+
+# Step 4: Recommendation Logic
+recommend_movies <- function(user_movies, top_n = 3) {
+  # Filtering movies based on genres of watched movies
+  matched_movies <- stratified_sample %>%
+    filter(title %in% user_movies) %>%
+    select(genres) %>%
+    unique()
+  
+  # Fallback
+  if (nrow(matched_movies) == 0) {
+    fallback <- stratified_sample %>%
+      arrange(desc(rating)) %>%
+      head(top_n) %>%
+      pull(title)
+    return(fallback)
+  }
+  
+  # Recommend movies from similar genres
+  recommended <- stratified_sample %>%
+    filter(genres %in% matched_movies$genres) %>%
+    arrange(desc(rating)) %>%
+    head(top_n) %>%
+    pull(title)
+  
+  return(recommended)
+}
+
+#Generating Recommendations
+recommendations <- lapply(x_data_list, function(user_movies) {
+  recommend_movies(user_movies, top_n = 3)
+})
+
+# Step 6: Evaluate Recommendations 
+total_users <- length(recommendations)
+user_matches <- numeric(total_users)
+correct_users <- 0
+
+for (i in 1:total_users) {
+  recommended_movies <- unlist(recommendations[[i]])
+  expected_movies <- unlist(y_data_list[[i]])
+  matches <- sum(recommended_movies %in% expected_movies)
+  
+  user_matches[i] <- matches
+  if (matches > 0) correct_users <- correct_users + 1  # counting correct if any match exists
+}
+
+# Step 7: Calculate Accuracy for coorect recomendation and total users
+accuracy <- (correct_users / total_users) * 100
+cat(sprintf("Accuracy: %.2f%%\n", accuracy))
+
+# Step 8: Save Results
+results_df <- data.frame(
+  User = 1:total_users,
+  Recommendations = sapply(recommendations, function(recs) paste(recs, collapse = "; ")),
+  Matches = user_matches
+)
+write.csv(results_df, "final_results1.csv", row.names = FALSE)
+cat("Results saved to 'final_results1.csv'.\n")
+```
+
+
+
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
